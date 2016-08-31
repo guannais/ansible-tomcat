@@ -55,6 +55,7 @@
     force: "yes"
     mode: "0755"
   become: "yes"
+  notify: Tomcat service restart
 - name: "Tomcat{{ tomcat_major_version }} add logrotate config"
   template: 
     src: "templates/logrotate.j2"
@@ -62,6 +63,7 @@
     mode: "0644"
     force: "yes"
   become: "yes"
+  notify: Tomcat service restart
 - name: "OWASP: Remove Tomcat{{ tomcat_major_version }} files"
   file: 
     path: "/opt/tomcat{{ tomcat_major_version }}/{{ item }}"
@@ -76,16 +78,19 @@
     - "webapps/docs"
     - "webapps/manager"
     - "webapps/host-manager"
+  notify: Tomcat service restart
 - name: "OWASP: Remove Tomcat{{ tomcat_major_version }} version - create dest dir"
   file: 
     path: "/opt/tomcat{{ tomcat_major_version }}/lib/org/apache/catalina/util"
     state: "directory"
+  notify: Tomcat service restart
 - name: "OWASP: Remove Tomcat{{ tomcat_major_version }} version"
   copy:
     src: "files/ServerInfo.properties"
     dest: "/opt/tomcat{{ tomcat_major_version }}/lib/org/apache/catalina/util/ServerInfo.properties"
     owner: "root"
     force: "yes"
+  notify: Tomcat service restart
 - name: "OWASP: Change Tomcat{{ tomcat_major_version }} permissions"
   file: 
     path: "/opt/tomcat{{ tomcat_major_version }}{{ item.directory }}"
@@ -98,7 +103,8 @@
     - { directory: "/conf", permissions: "0500"}
     - { directory: "/logs", permissions: "0300"}
     - { directory: "/temp", permissions: "0600"}
-- name: "Tomcat{{ tomcat_major_version }} create service"
+  notify: Tomcat service restart
+- name: "Tomcat{{ tomcat_major_version }} create service file"
   template: 
     src: "templates/tomcat.j2"
     dest: "/etc/init.d/tomcat{{ tomcat_major_version }}"
@@ -107,3 +113,14 @@
     force: "yes"
     mode: "0755"
   become: "yes"
+  notify: Tomcat service restart
+- name: "Create tomcat{{ tomcat_major_version }} create service"
+  command:
+    update-rc.d tomcat{{ tomcat_major_version }} defaults
+  when: ansible_os_family == 'Debian'
+  become: "yes"
+  notify: Tomcat service restart
+- name: "Tomcat{{ tomcat_major_version }} service start"
+  service: 
+    name: "tomcat{{ tomcat_major_version }}"
+    enabled: "yes"

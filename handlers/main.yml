@@ -1,2 +1,4 @@
 ---
-# handlers file for tomcat
+# handlers file for oracle-jre8
+- name: Tomcat service restart
+  service: name=tomcat{{ tomcat_major_version }} state=restarted
