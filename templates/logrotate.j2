@@ -1,0 +1,12 @@
+/opt/tomcat{{ tomcat_major_version }}/logs/*.log {
+  rotate 7
+  daily
+  missingok
+  notifempty
+  compress
+  delaycompress
+  nocreate
+  sharedscripts
+  postrotate
+  endscript
+}

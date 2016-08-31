@@ -1,0 +1,109 @@
+---
+# tasks file for tomcat
+# Check role variables exist
+- name: "Check Variable - Tomcat Major Version"
+  fail: 
+    msg: "ERROR - required variable 'tomcat_major_version' missing."
+  when: tomcat_major_version is not defined
+- name: "Check Variable - Tomcat Version"
+  fail: 
+    msg: "ERROR - required variable 'tomcat_minor_version' missing."
+  when: tomcat_minor_version is not defined
+- name: "Check Variable - Tomcat URL"
+  fail: 
+    msg: "ERROR - required variable 'tomcat_url' missing."
+  when: tomcat_url is not defined
+- name: "Check Variable - Tomcat extract directory"
+  fail: 
+    msg: "ERROR - required variable 'tomcat_extract_dir' missing."
+  when: tomcat_extract_dir is not defined
+- name: "Check - Java Install Dir"
+  stat: "path=/opt/{{ tomcat_extract_dir }}"
+  register: tomcat_install_dir
+- name: "Create tomcat{{ tomcat_major_version }} group"
+  group: 
+    name: "tomcat{{ tomcat_major_version }}"
+    state: "present"
+- name: "Create tomcat{{ tomcat_major_version }} user"
+  user: 
+    name: "tomcat{{ tomcat_major_version }}"
+    shell: "/bin/bash" 
+    groups: "tomcat{{ tomcat_major_version }}"
+    append: "yes"
+- name: "Extract and install Tomcat{{ tomcat_major_version }}"
+  unarchive: 
+    src: "{{ tomcat_url }}"
+    dest: "/opt/"
+    copy: "no"
+    mode: "0644"
+    owner: "root"
+    group: "root"
+  when: not tomcat_install_dir.stat.exists
+- name: "Create tomcat{{ tomcat_major_version }} link"
+  file: 
+    src: "/opt/{{ tomcat_extract_dir }}"
+    dest: "/opt/tomcat{{ tomcat_major_version }}"
+    owner: "tomcat{{ tomcat_major_version }}"
+    group: "tomcat{{ tomcat_major_version }}"
+    state: "link"
+- name: "Tomcat{{ tomcat_major_version }} set env file"
+  template: 
+    src: "templates/setenv.sh.j2"
+    dest: "/opt/tomcat{{ tomcat_major_version }}/bin/setenv.sh"
+    owner: "root"
+    group: "root"
+    force: "yes"
+    mode: "0755"
+  become: "yes"
+- name: "Tomcat{{ tomcat_major_version }} add logrotate config"
+  template: 
+    src: "templates/logrotate.j2"
+    dest: "/etc/logrotate.d/tomcat{{ tomcat_major_version }}"
+    mode: "0644"
+    force: "yes"
+  become: "yes"
+- name: "OWASP: Remove Tomcat{{ tomcat_major_version }} files"
+  file: 
+    path: "/opt/tomcat{{ tomcat_major_version }}/{{ item }}"
+    state: "absent"
+  with_items:
+    - "RELEASE-NOTES"
+    - "RUNNING.txt"
+    - "NOTICE"
+    - "LICENSE"
+    - "webapps/ROOT"
+    - "webapps/examples"
+    - "webapps/docs"
+    - "webapps/manager"
+    - "webapps/host-manager"
+- name: "OWASP: Remove Tomcat{{ tomcat_major_version }} version - create dest dir"
+  file: 
+    path: "/opt/tomcat{{ tomcat_major_version }}/lib/org/apache/catalina/util"
+    state: "directory"
+- name: "OWASP: Remove Tomcat{{ tomcat_major_version }} version"
+  copy:
+    src: "files/ServerInfo.properties"
+    dest: "/opt/tomcat{{ tomcat_major_version }}/lib/org/apache/catalina/util/ServerInfo.properties"
+    owner: "root"
+    force: "yes"
+- name: "OWASP: Change Tomcat{{ tomcat_major_version }} permissions"
+  file: 
+    path: "/opt/tomcat{{ tomcat_major_version }}{{ item.directory }}"
+    owner: "tomcat{{ tomcat_major_version }}"
+    group: "tomcat{{ tomcat_major_version }}"
+    mode: "{{ item.permissions }}"
+    recurse: "yes"
+  with_items:
+    - { directory: "/", permissions: "0755"}
+    - { directory: "/conf", permissions: "0400"}
+    - { directory: "/logs", permissions: "0300"}
+    - { directory: "/temp", permissions: "0600"}
+- name: "Tomcat{{ tomcat_major_version }} create service"
+  template: 
+    src: "templates/tomcat.j2"
+    dest: "/etc/init.d/tomcat{{ tomcat_major_version }}"
+    owner: "root"
+    group: "root"
+    force: "yes"
+    mode: "0755"
+  become: "yes"

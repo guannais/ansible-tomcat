@@ -1,0 +1,4 @@
+---
+# vars file for tomcat
+tomcat_extract_dir: "apache-tomcat-{{ tomcat_major_version }}.{{ tomcat_minor_version }}"
+tomcat_url: "http://ftp.cixug.es/apache/tomcat/tomcat-{{ tomcat_major_version }}/v{{ tomcat_major_version }}.{{ tomcat_minor_version }}/bin/apache-tomcat-{{ tomcat_major_version }}.{{ tomcat_minor_version }}.tar.gz"
