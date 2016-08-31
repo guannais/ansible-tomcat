@@ -95,7 +95,7 @@
     recurse: "yes"
   with_items:
     - { directory: "/", permissions: "0755"}
-    - { directory: "/conf", permissions: "0400"}
+    - { directory: "/conf", permissions: "0500"}
     - { directory: "/logs", permissions: "0300"}
     - { directory: "/temp", permissions: "0600"}
 - name: "Tomcat{{ tomcat_major_version }} create service"
