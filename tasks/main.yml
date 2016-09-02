@@ -17,7 +17,7 @@
   fail: 
     msg: "ERROR - required variable 'tomcat_extract_dir' missing."
   when: tomcat_extract_dir is not defined
-- name: "Check - Java Install Dir"
+- name: "Check - Tomcat Install Dir"
   stat: "path=/opt/{{ tomcat_extract_dir }}"
   register: tomcat_install_dir
 - name: "Create tomcat{{ tomcat_major_version }} group"
