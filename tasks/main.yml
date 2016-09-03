@@ -1,25 +1,9 @@
 ---
 # tasks file for tomcat
 # Check role variables exist
-- name: "Check Variable - Tomcat Major Version"
-  fail: 
-    msg: "ERROR - required variable 'tomcat_major_version' missing."
-  when: tomcat_major_version is not defined
-- name: "Check Variable - Tomcat Version"
-  fail: 
-    msg: "ERROR - required variable 'tomcat_minor_version' missing."
-  when: tomcat_minor_version is not defined
-- name: "Check Variable - Tomcat URL"
-  fail: 
-    msg: "ERROR - required variable 'tomcat_url' missing."
-  when: tomcat_url is not defined
-- name: "Check Variable - Tomcat extract directory"
-  fail: 
-    msg: "ERROR - required variable 'tomcat_extract_dir' missing."
-  when: tomcat_extract_dir is not defined
-- name: "Check - Tomcat Install Dir"
-  stat: "path=/opt/{{ tomcat_extract_dir }}"
-  register: tomcat_install_dir
+- name: "Register - Tomcat Extract Dir Service file"
+  stat: "path=/opt/apache-tomcat-{{ tomcat_major_version }}.{{ tomcat_minor_version }}"
+  register: tomcat_extract_dir
 - name: "Create tomcat{{ tomcat_major_version }} group"
   group: 
     name: "tomcat{{ tomcat_major_version }}"
@@ -38,10 +22,10 @@
     mode: "0644"
     owner: "root"
     group: "root"
-  when: not tomcat_install_dir.stat.exists
+  when: not tomcat_extract_dir.stat.exists
 - name: "Create tomcat{{ tomcat_major_version }} link"
   file: 
-    src: "/opt/{{ tomcat_extract_dir }}"
+    src: "/opt/apache-tomcat-{{ tomcat_major_version }}.{{ tomcat_minor_version }}"
     dest: "/opt/tomcat{{ tomcat_major_version }}"
     owner: "tomcat{{ tomcat_major_version }}"
     group: "tomcat{{ tomcat_major_version }}"
