@@ -25,7 +25,7 @@
   when: not tomcat_extract_dir.stat.exists
 - name: "Create tomcat{{ tomcat_major_version }} link"
   file: 
-    src: "/opt/apache-tomcat-{{ tomcat_major_version }}.{{ tomcat_minor_version }}  "
+    src: "/opt/apache-tomcat-{{ tomcat_major_version }}.{{ tomcat_minor_version }}"
     dest: "/opt/tomcat{{ tomcat_major_version }}"
     owner: "tomcat{{ tomcat_major_version }}"
     group: "tomcat{{ tomcat_major_version }}"
