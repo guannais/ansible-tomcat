@@ -1,5 +1,5 @@
 ---
 # defaults file for tomcat
 tomcat_major_version: "8"
-tomcat_minor_version: "5.5"
+tomcat_minor_version: "5.6"
 tomcat_url: "http://apache.rediris.es/tomcat/tomcat-{{ tomcat_major_version }}/v{{ tomcat_major_version }}.{{ tomcat_minor_version }}/bin/apache-tomcat-{{ tomcat_major_version }}.{{ tomcat_minor_version }}.tar.gz"
